@@ -192,9 +192,6 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                     );
 
                                     submitForm();
-                                    print(_username);
-                                    print(_email);
-                                    print(_password);
                                   }
                                 },
                                 child: const Text("    Submit    "),
