@@ -51,7 +51,6 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
             email: _email, password: _password);
       }
     } catch (error) {
-      print(error);
       throw error;
     }
     setState(() {});
