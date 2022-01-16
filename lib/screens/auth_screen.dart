@@ -1,3 +1,8 @@
+import 'dart:io';
+
+import 'package:chat_app/assets/image_picker.dart' as img;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -12,6 +17,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   String _username = "";
   String _password = "";
   String _email = "";
+  late File _imageFile;
 
   final _auth = FirebaseAuth.instance;
 
@@ -20,6 +26,10 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
   double animValue = 1.0;
+
+  void _pickedImage(File image) {
+    _imageFile = image;
+  }
 
   @override
   void initState() {
@@ -42,14 +52,33 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   }
 
   void submitForm() async {
+    UserCredential _authResult;
     try {
       if (isRegistering) {
-        await _auth.createUserWithEmailAndPassword(
+        _authResult = await _auth.createUserWithEmailAndPassword(
             email: _email, password: _password);
       } else {
-        await _auth.signInWithEmailAndPassword(
+        _authResult = await _auth.signInWithEmailAndPassword(
             email: _email, password: _password);
       }
+
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child("user_images")
+          .child(_authResult.user!.uid + ".jpg");
+
+      await ref.putFile(_imageFile);
+
+      final url = await ref.getDownloadURL();
+
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(_authResult.user!.uid)
+          .set({
+        "username": _username,
+        "email": _email,
+        "image_url": url,
+      });
     } catch (error) {
       throw error;
     }
@@ -76,7 +105,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
           child: SizedBox(
             width: 300,
             child: AnimatedContainer(
-              height: isRegistering ? 450 : 350,
+              height: isRegistering ? 550 : 350,
               decoration: BoxDecoration(
                   // color: Colors.white,
                   //border: Border.all(width: 1),
@@ -111,6 +140,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                       key: _formKey,
                       child: Column(
                         children: [
+                          if (isRegistering) img.ImagePicker(_pickedImage),
                           if (isRegistering)
                             FadeTransition(
                               opacity: _animation,
@@ -183,6 +213,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                   primary: Colors.black, // background
                                 ),
                                 onPressed: () {
+                                  FocusScope.of(context).unfocus();
+
                                   _formKey.currentState!.save();
                                   if (_formKey.currentState!.validate()) {
                                     ScaffoldMessenger.of(context).showSnackBar(
