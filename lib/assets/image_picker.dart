@@ -13,7 +13,7 @@ class ImagePicker extends StatefulWidget {
 }
 
 class _ImagePickerState extends State<ImagePicker> {
-  late File pickedImageFile = File("/");
+  late File pickedImageFile = File("");
 
   void _pickImage() async {
     final picker = pick.ImagePicker();
@@ -37,7 +37,7 @@ class _ImagePickerState extends State<ImagePicker> {
       children: [
         //need to reapair image loading
         CircleAvatar(
-          backgroundImage: pickedImageFile.existsSync()
+          backgroundImage: pickedImageFile.path.isEmpty
               ? AssetImage('lib/images/user.png') as ImageProvider
               : FileImage(pickedImageFile),
           radius: 50,
