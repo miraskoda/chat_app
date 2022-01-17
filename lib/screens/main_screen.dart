@@ -15,39 +15,40 @@ class _ChatScreenState extends State<ChatScreen> {
   String imageUrl = "";
   String username = "";
 
-  Future<void> getImageUrl() async {
+  Future<QueryDocumentSnapshot> getImageUrl() async {
     final id = FirebaseAuth.instance.currentUser!.uid;
     CollectionReference _collectionRef =
         FirebaseFirestore.instance.collection('users');
     QuerySnapshot querySnapshot = await _collectionRef.get();
-    final dat = querySnapshot.docs.firstWhere((element) {
+    return querySnapshot.docs.firstWhere((element) {
       return element.id == id;
     });
-    imageUrl = dat["image_url"];
-    username = dat["username"];
-    setState(() {});
-    //print(imageUrl);
   }
 
   @override
   Widget build(BuildContext context) {
-    getImageUrl();
+    //getImageUrl();
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            CircleAvatar(
-              backgroundImage: NetworkImage(imageUrl),
-            ),
-            Text(username),
-            SizedBox(
-              width: 70,
-            ),
-          ],
-        ),
+        title: FutureBuilder(
+            future: getImageUrl(),
+            builder: (BuildContext ctx, AsyncSnapshot<dynamic> snap) {
+              return snap.connectionState == ConnectionState.waiting
+                  ? CircularProgressIndicator()
+                  : Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundImage: NetworkImage(snap.data["image_url"]),
+                        ),
+                        Text(snap.data["username"]),
+                        SizedBox(
+                          width: 50,
+                        ),
+                      ],
+                    );
+            }),
         actions: [
           TextButton(
             onPressed: () {
