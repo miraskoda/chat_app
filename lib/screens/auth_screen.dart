@@ -17,7 +17,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   String _username = "";
   String _password = "";
   String _email = "";
-  late File _imageFile;
+  File _imageFile = File("");
 
   final _auth = FirebaseAuth.instance;
 
@@ -78,6 +78,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
         "username": _username,
         "email": _email,
         "image_url": url,
+        "uId": _authResult.user!.uid
       });
     } catch (error) {
       throw error;
@@ -104,130 +105,140 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
         child: Center(
           child: SizedBox(
             width: 300,
-            child: AnimatedContainer(
-              height: isRegistering ? 550 : 350,
-              decoration: BoxDecoration(
-                  // color: Colors.white,
-                  //border: Border.all(width: 1),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.8),
-                      spreadRadius: 15,
-                      blurRadius: 7,
-                      offset: const Offset(0, 3), // changes position of shadow
+            child: SingleChildScrollView(
+              child: AnimatedContainer(
+                height: isRegistering ? 550 : 350,
+                decoration: BoxDecoration(
+                    // color: Colors.white,
+                    //border: Border.all(width: 1),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.8),
+                        spreadRadius: 15,
+                        blurRadius: 7,
+                        offset:
+                            const Offset(0, 3), // changes position of shadow
+                      ),
+                    ]),
+                duration: const Duration(milliseconds: 50),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        "Login screen",
+                        style: TextStyle(
+                            fontSize: 28, fontWeight: FontWeight.bold),
+                      ),
                     ),
-                  ]),
-              duration: const Duration(milliseconds: 50),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      "Login screen",
-                      style:
-                          TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                    const SizedBox(
+                      height: 30,
                     ),
-                  ),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          if (isRegistering) img.ImagePicker(_pickedImage),
-                          if (isRegistering)
-                            FadeTransition(
-                              opacity: _animation,
-                              child: TextFormField(
-                                key: Key("username"),
-                                onSaved: (newValue) {
-                                  _username = newValue!;
-                                },
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  hintText: 'Username',
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            if (isRegistering) img.ImagePicker(_pickedImage),
+                            if (isRegistering)
+                              FadeTransition(
+                                opacity: _animation,
+                                child: TextFormField(
+                                  key: Key("username"),
+                                  onSaved: (newValue) {
+                                    _username = newValue!.trim();
+                                  },
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    hintText: 'Username',
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return "Please enter a valid username";
+                                    }
+                                    return null;
+                                  },
                                 ),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return "Please enter a valid username";
-                                  }
-                                  return null;
-                                },
                               ),
+                            if (isRegistering)
+                              const SizedBox(
+                                height: 10,
+                              ),
+                            TextFormField(
+                              key: Key("email"),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Please enter a valid email";
+                                }
+                                return null;
+                              },
+                              onSaved: (newValue) {
+                                _email = newValue!.trim();
+                              },
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                hintText: 'Email',
+                              ),
+                              keyboardType: TextInputType.emailAddress,
                             ),
-                          if (isRegistering)
                             const SizedBox(
                               height: 10,
                             ),
-                          TextFormField(
-                            key: Key("email"),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Please enter a valid email";
-                              }
-                              return null;
-                            },
-                            onSaved: (newValue) {
-                              _email = newValue!;
-                            },
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              hintText: 'Email',
-                            ),
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          TextFormField(
-                            key: Key("pass"),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Please enter a valid password";
-                              }
-                              return null;
-                            },
-                            onSaved: (newValue) {
-                              _password = newValue!;
-                            },
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              hintText: 'Password',
-                            ),
-                            obscureText: true,
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  primary: Colors.black, // background
-                                ),
-                                onPressed: () {
-                                  FocusScope.of(context).unfocus();
-
-                                  _formKey.currentState!.save();
-                                  if (_formKey.currentState!.validate()) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text('Logging in')),
-                                    );
-
-                                    submitForm();
-                                  }
-                                },
-                                child: const Text("    Submit    "),
+                            TextFormField(
+                              key: Key("pass"),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Please enter a valid password";
+                                }
+                                return null;
+                              },
+                              onSaved: (newValue) {
+                                _password = newValue!.trim();
+                              },
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                hintText: 'Password',
                               ),
-                              ElevatedButton(
+                              obscureText: true,
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Colors.black, // background
+                                  ),
+                                  onPressed: () {
+                                    FocusScope.of(context).unfocus();
+
+                                    _formKey.currentState!.save();
+                                    if (_formKey.currentState!.validate() &&
+                                        _imageFile.path.isNotEmpty) {
+                                      print(_imageFile.path.isNotEmpty);
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text('Logging in')),
+                                      );
+                                      submitForm();
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text('An error occured')),
+                                      );
+                                    }
+                                  },
+                                  child: const Text("    Submit    "),
+                                ),
+                                ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     primary: Colors.black, // background
                                   ),
@@ -243,17 +254,24 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                       }
                                     });
                                   },
-                                  child: const Text(
-                                    "Register",
-                                    style: TextStyle(fontSize: 12),
-                                  ))
-                            ],
-                          ),
-                        ],
+                                  child: isRegistering
+                                      ? const Text(
+                                          "Back to login",
+                                          style: TextStyle(fontSize: 12),
+                                        )
+                                      : const Text(
+                                          "Register",
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

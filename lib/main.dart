@@ -1,13 +1,16 @@
 import 'package:chat_app/assets/splash_screen.dart';
 import 'package:chat_app/screens/auth_screen.dart';
+import 'package:chat_app/screens/chat_screen.dart';
 import 'package:chat_app/screens/main_screen.dart';
+import 'package:chat_app/screens/settings_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp().whenComplete(() => runApp(const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -35,24 +38,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Future<FirebaseApp> _initialization = Firebase.initializeApp();
     firebaseMess();
 
-    return FutureBuilder(
-      future: _initialization,
-      builder: (ctx, snap) => MaterialApp(
-        title: 'ChatApp',
-        theme: ThemeData(
-            primarySwatch: Colors.blue,
-            backgroundColor: Colors.grey,
-            fontFamily: "Quicksand"),
-        home: snap.connectionState != ConnectionState.done
-            ? SplashScreen()
-            : StreamBuilder(
-                stream: FirebaseAuth.instance.authStateChanges(),
-                builder: (ctx, snapshot) =>
-                    snapshot.hasData ? ChatScreen() : AuthScreen()),
-      ),
+    return MaterialApp(
+      title: 'ChatApp',
+      theme: ThemeData(
+          primarySwatch: Colors.blue,
+          backgroundColor: Colors.grey,
+          fontFamily: "Quicksand"),
+      home: StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (ctx, snapshot) =>
+              snapshot.hasData ? MainScreen() : AuthScreen()),
+      routes: {
+        ChatScreen.routeName: (ctx) => const ChatScreen(),
+        SettingsScreen.routeName: (ctx) => const SettingsScreen(),
+      },
     );
   }
 }
