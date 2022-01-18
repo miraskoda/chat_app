@@ -72,12 +72,16 @@ class _ChatScreenState extends State<ChatScreen> {
     //print(uIdToMess);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black87,
+        elevation: 0,
+        backgroundColor: Colors.black45,
         title: FutureBuilder(
           future: getImage(),
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             return snapshot.connectionState == ConnectionState.done
-                ? Text("Chat: " + snapshot.data["username"])
+                ? Padding(
+                    padding: const EdgeInsets.only(left: 45.0),
+                    child: Text("Chat: " + snapshot.data["username"]),
+                  )
                 : const Center(
                     child: CircularProgressIndicator(),
                   );
@@ -85,73 +89,109 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       ),
       body: Container(
-        child: Column(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(10),
-                child: StreamBuilder(
-                  stream: FirebaseFirestore.instance
-                      .collection("messages")
-                      .doc(FirebaseAuth
-                          .instance.currentUser?.uid) // current logged user
-                      .collection(idUsers)
-                      .orderBy("createdAt", descending: true)
-                      // person who wants to send mess
-                      .snapshots(),
-                  builder:
-                      (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                    return snapshot.connectionState == ConnectionState.waiting
-                        ? const Center(
-                            child: CircularProgressIndicator(),
-                          )
-                        : ListView.builder(
-                            reverse: true,
-                            itemCount: snapshot.data.docs.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return messBuble(
-                                username: snapshot.data.docs[index]["username"],
-                                text: snapshot.data.docs[index]["text"],
-                                isMe: FirebaseAuth.instance.currentUser!.uid ==
-                                    snapshot.data.docs[index]["userId"],
-                                userId: snapshot.data.docs[index]["userId"],
-                              );
-                            },
-                          );
-                  },
+        color: Colors.black45,
+        child: Container(
+          margin: EdgeInsets.only(top: 30),
+          decoration: BoxDecoration(
+            color: Colors.blue[100],
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
+            ),
+          ),
+          child: Column(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.all(10),
+                  child: StreamBuilder(
+                    stream: FirebaseFirestore.instance
+                        .collection("messages")
+                        .doc(FirebaseAuth
+                            .instance.currentUser?.uid) // current logged user
+                        .collection(idUsers)
+                        .orderBy("createdAt", descending: true)
+                        // person who wants to send mess
+                        .snapshots(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<dynamic> snapshot) {
+                      return snapshot.connectionState == ConnectionState.waiting
+                          ? const Center(
+                              child: CircularProgressIndicator(),
+                            )
+                          : ListView.builder(
+                              reverse: true,
+                              itemCount: snapshot.data.docs.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return messBuble(
+                                  username: snapshot.data.docs[index]
+                                      ["username"],
+                                  text: snapshot.data.docs[index]["text"],
+                                  isMe:
+                                      FirebaseAuth.instance.currentUser!.uid ==
+                                          snapshot.data.docs[index]["userId"],
+                                  userId: snapshot.data.docs[index]["userId"],
+                                );
+                              },
+                            );
+                    },
+                  ),
                 ),
               ),
-            ),
-            Container(
-              margin: EdgeInsets.only(top: 8),
-              padding: EdgeInsets.all(2),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 50,
-                      decoration:
-                          BoxDecoration(border: Border.all(color: Colors.grey)),
-                      child: TextField(
-                        decoration: InputDecoration(labelText: "Send"),
-                        controller: _messController,
+              Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30)),
+                    color: Colors.black38),
+                margin: EdgeInsets.only(top: 8),
+                padding:
+                    EdgeInsets.only(left: 20, right: 20, top: 5, bottom: 5),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        child: TextField(
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 18,
+                          ),
+                          decoration: InputDecoration(
+                            isDense: true, // Added this
+                            contentPadding: EdgeInsets.all(8), // Added this
+                            border: InputBorder.none,
+                            hintText: "Send",
+                            hintStyle: TextStyle(color: Colors.white70),
+                          ),
+                          controller: _messController,
+                        ),
                       ),
                     ),
-                  ),
-                  Container(
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _sendMessage,
-                      child: Text("Send"),
-                      style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all(Colors.black)),
-                    ),
-                  )
-                ],
-              ),
-            )
-          ],
+                    Container(
+                      // height: 40,
+                      child: ElevatedButton(
+                        onPressed: _sendMessage,
+                        child: Text(
+                          "Send",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20)),
+                              ),
+                            ),
+                            elevation: MaterialStateProperty.all(10),
+                            backgroundColor:
+                                MaterialStateProperty.all(Colors.blue)),
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

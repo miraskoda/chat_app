@@ -50,19 +50,34 @@ class _MainScreenState extends State<MainScreen> {
     // });
   }
 
+  dynamic getFormattedDate(dynamic snaps) {
+    bool notValid = snaps.data == null;
+    String ret = !notValid
+        ? DateFormat.d().format(snaps.data["createdAt"].toDate())
+        : "";
+    if (ret == DateFormat.d().format(DateTime.now())) {
+      return DateFormat.Hm().format(snaps.data["createdAt"].toDate());
+    }
+    ret = notValid
+        ? "No data"
+        : DateFormat.Md().format(snaps.data["createdAt"].toDate());
+    return ret;
+  }
+
   @override
   Widget build(BuildContext context) {
     //getImageUrl();
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black87,
+        elevation: 0,
+        backgroundColor: Colors.black45,
         title: FutureBuilder(
             future: getImageUrl(),
             builder: (BuildContext ctx, AsyncSnapshot<dynamic> snap) {
               //snap.data["username"];
               return snap.connectionState != ConnectionState.done
-                  ? CircularProgressIndicator()
+                  ? const CircularProgressIndicator()
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -71,7 +86,7 @@ class _MainScreenState extends State<MainScreen> {
                               NetworkImage(snap.data!["image_url"]),
                         ),
                         Text(snap.data!["username"]),
-                        SizedBox(
+                        const SizedBox(
                           width: 90,
                         ),
                       ],
@@ -82,127 +97,182 @@ class _MainScreenState extends State<MainScreen> {
               onPressed: () {
                 Navigator.of(context).pushNamed(SettingsScreen.routeName);
               },
-              icon: Icon(Icons.settings)),
+              icon: const Icon(Icons.settings)),
           TextButton(
             onPressed: () {
               logout();
             },
-            child: Text(
+            child: const Text(
               "Logout",
               style: TextStyle(color: Colors.white),
             ),
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: Container(
+        color: Colors.black45,
         child: Container(
-          child: Column(
-            children: [
-              const Padding(
-                padding: EdgeInsets.all(10.0),
-                child: Text(
-                  "Conversations:",
-                  style: TextStyle(fontSize: 24),
-                ),
+          margin: EdgeInsets.only(top: 30),
+          decoration: BoxDecoration(
+            color: Colors.blue[100],
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
+            ),
+          ),
+          //color: Colors.black26,
+          height: MediaQuery.of(context).size.height,
+          child: SingleChildScrollView(
+            child: Container(
+              child: Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: Text(
+                      "Open new chat:",
+                      style: TextStyle(fontSize: 24),
+                    ),
+                  ),
+                  Padding(
+                      padding: const EdgeInsets.all(30.0),
+                      child: StreamBuilder(
+                        builder: (BuildContext context,
+                            AsyncSnapshot<dynamic> snapshot) {
+                          return snapshot.connectionState ==
+                                  ConnectionState.waiting
+                              ? CircularProgressIndicator()
+                              : ListView.builder(
+                                  shrinkWrap: true,
+                                  itemBuilder: (ctx, index) => Container(
+                                    child: Column(
+                                      children: [
+                                        FutureBuilder(
+                                            future: getLastMess(snapshot
+                                                .data.docs[index]["uId"]),
+                                            builder: (BuildContext ctxs,
+                                                AsyncSnapshot<dynamic> snaps) {
+                                              return snaps.connectionState ==
+                                                      ConnectionState.waiting
+                                                  ? CircularProgressIndicator()
+                                                  : Container(
+                                                      alignment:
+                                                          Alignment.center,
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(5.0),
+                                                        child: GestureDetector(
+                                                          onTap: () {
+                                                            //print(snapshot.data.docs);
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pushNamed(
+                                                              ChatScreen
+                                                                  .routeName,
+                                                              arguments: snapshot
+                                                                      .data
+                                                                      .docs[
+                                                                  index]["uId"],
+                                                            );
+                                                          },
+                                                          child: Row(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .max,
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Flexible(
+                                                                child:
+                                                                    CircleAvatar(
+                                                                  backgroundImage:
+                                                                      NetworkImage(snapshot
+                                                                          .data
+                                                                          .docs[index]["image_url"]),
+                                                                ),
+                                                              ),
+                                                              SizedBox(
+                                                                width: 0,
+                                                              ),
+                                                              Container(
+                                                                width: 140,
+                                                                child: Padding(
+                                                                  padding: const EdgeInsets
+                                                                          .only(
+                                                                      left:
+                                                                          0.0),
+                                                                  child: Column(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .start,
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Text(snapshot
+                                                                          .data
+                                                                          .docs[index]["username"]),
+                                                                      Text(snaps.data ==
+                                                                              null
+                                                                          ? "No messages"
+                                                                          : (snaps
+                                                                              .data["text"]))
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 0,
+                                                              ),
+                                                              Container(
+                                                                width: 60,
+                                                                child: Text(
+                                                                    getFormattedDate(
+                                                                        snaps)),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      decoration: BoxDecoration(
+                                                          boxShadow: [
+                                                            BoxShadow(
+                                                              color: Colors
+                                                                  .white
+                                                                  .withOpacity(
+                                                                      0.8),
+                                                              spreadRadius: 3,
+                                                              blurRadius: 7,
+                                                              offset: const Offset(
+                                                                  0,
+                                                                  1), // changes position of shadow
+                                                            ),
+                                                          ],
+                                                          color:
+                                                              Colors.blue[200],
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      20)),
+                                                    );
+                                            }),
+                                        const SizedBox(
+                                          height: 20,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  itemCount: snapshot.data.docs.length,
+                                );
+                        },
+                        stream: FirebaseFirestore.instance
+                            .collection('users')
+                            .snapshots(),
+                      )),
+                ],
               ),
-              Padding(
-                  padding: const EdgeInsets.all(30.0),
-                  child: StreamBuilder(
-                    builder: (BuildContext context,
-                        AsyncSnapshot<dynamic> snapshot) {
-                      return snapshot.connectionState == ConnectionState.waiting
-                          ? CircularProgressIndicator()
-                          : ListView.builder(
-                              shrinkWrap: true,
-                              itemBuilder: (ctx, index) => Column(
-                                children: [
-                                  FutureBuilder(
-                                      future: getLastMess(
-                                          snapshot.data.docs[index]["uId"]),
-                                      builder: (BuildContext ctxs,
-                                          AsyncSnapshot<dynamic> snaps) {
-                                        return Container(
-                                          alignment: Alignment.center,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(5.0),
-                                            child: GestureDetector(
-                                              onTap: () {
-                                                //print(snapshot.data.docs);
-                                                Navigator.of(context).pushNamed(
-                                                  ChatScreen.routeName,
-                                                  arguments: snapshot
-                                                      .data.docs[index]["uId"],
-                                                );
-                                              },
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  CircleAvatar(
-                                                    backgroundImage:
-                                                        NetworkImage(snapshot
-                                                                .data
-                                                                .docs[index]
-                                                            ["image_url"]),
-                                                  ),
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 10.0),
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        Text(snapshot.data
-                                                                .docs[index]
-                                                            ["username"]),
-                                                        Text(snaps.data == null
-                                                            ? "No messages"
-                                                            : (snaps
-                                                                .data["text"]))
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 90,
-                                                  ),
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 10.0),
-                                                    child: Text(snaps.data ==
-                                                            null
-                                                        ? ""
-                                                        : DateFormat.yMMMd()
-                                                            .format((snaps.data[
-                                                                        "createdAt"]
-                                                                    .toDate()
-                                                                as DateTime))),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                          decoration: BoxDecoration(
-                                              color: Colors.blue[200],
-                                              borderRadius:
-                                                  BorderRadius.circular(20)),
-                                        );
-                                      }),
-                                  const SizedBox(
-                                    height: 20,
-                                  )
-                                ],
-                              ),
-                              itemCount: snapshot.data.docs.length,
-                            );
-                    },
-                    stream: FirebaseFirestore.instance
-                        .collection('users')
-                        .snapshots(),
-                  )),
-            ],
+            ),
           ),
         ),
       ),

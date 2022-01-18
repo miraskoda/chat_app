@@ -51,10 +51,13 @@ class messBuble extends StatelessWidget {
                           future: getImageUrl(),
                           builder: (BuildContext context,
                               AsyncSnapshot<dynamic> snapshot) {
-                            return CircleAvatar(
-                              backgroundImage:
-                                  NetworkImage(snapshot.data!["image_url"]),
-                            );
+                            return snapshot.connectionState ==
+                                    ConnectionState.waiting
+                                ? CircularProgressIndicator()
+                                : CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                        snapshot.data!["image_url"]),
+                                  );
                           },
                         ),
                   const SizedBox(
@@ -92,10 +95,13 @@ class messBuble extends StatelessWidget {
                           future: getImageUrl(),
                           builder: (BuildContext context,
                               AsyncSnapshot<dynamic> snapshot) {
-                            return CircleAvatar(
-                              backgroundImage:
-                                  NetworkImage(snapshot.data!["image_url"]),
-                            );
+                            return snapshot.connectionState ==
+                                    ConnectionState.waiting
+                                ? CircularProgressIndicator()
+                                : CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                        snapshot.data!["image_url"]),
+                                  );
                           },
                         ),
                 ],

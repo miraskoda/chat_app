@@ -42,10 +42,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       title: 'ChatApp',
-      theme: ThemeData(
-          primarySwatch: Colors.blue,
-          backgroundColor: Colors.grey,
-          fontFamily: "Quicksand"),
+      theme: ThemeData(fontFamily: "Quicksand"),
       home: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (ctx, snapshot) =>
