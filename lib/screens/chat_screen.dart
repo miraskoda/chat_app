@@ -139,24 +139,24 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
               Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(30),
                         topRight: Radius.circular(30)),
                     color: Colors.black38),
-                margin: EdgeInsets.only(top: 8),
-                padding:
-                    EdgeInsets.only(left: 20, right: 20, top: 5, bottom: 5),
+                margin: const EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.only(
+                    left: 20, right: 20, top: 5, bottom: 5),
                 child: Row(
                   children: [
                     Expanded(
                       child: Container(
                         child: TextField(
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 18,
                           ),
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             isDense: true, // Added this
                             contentPadding: EdgeInsets.all(8), // Added this
                             border: InputBorder.none,
@@ -171,13 +171,13 @@ class _ChatScreenState extends State<ChatScreen> {
                       // height: 40,
                       child: ElevatedButton(
                         onPressed: _sendMessage,
-                        child: Text(
+                        child: const Text(
                           "Send",
                           style: TextStyle(color: Colors.white),
                         ),
                         style: ButtonStyle(
                             shape: MaterialStateProperty.all(
-                              RoundedRectangleBorder(
+                              const RoundedRectangleBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(20)),
                               ),

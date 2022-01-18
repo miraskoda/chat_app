@@ -53,10 +53,23 @@ class messBuble extends StatelessWidget {
                               AsyncSnapshot<dynamic> snapshot) {
                             return snapshot.connectionState ==
                                     ConnectionState.waiting
-                                ? CircularProgressIndicator()
-                                : CircleAvatar(
-                                    backgroundImage: NetworkImage(
-                                        snapshot.data!["image_url"]),
+                                ? const CircularProgressIndicator()
+                                : Container(
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                            blurRadius: 10,
+                                            color: Colors.white,
+                                            spreadRadius: 5)
+                                      ],
+                                    ),
+                                    child: CircleAvatar(
+                                      radius: 20,
+                                      backgroundImage: NetworkImage(
+                                          snapshot.data!["image_url"]),
+                                    ),
                                   );
                           },
                         ),
@@ -77,6 +90,15 @@ class messBuble extends StatelessWidget {
                               ? const Radius.circular(0)
                               : const Radius.circular(20),
                         ),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.white,
+                            blurRadius: 2.0,
+                            spreadRadius: 0.0,
+                            offset: Offset(
+                                2.0, 2.0), // shadow direction: bottom right
+                          )
+                        ],
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(9.0),
@@ -97,10 +119,23 @@ class messBuble extends StatelessWidget {
                               AsyncSnapshot<dynamic> snapshot) {
                             return snapshot.connectionState ==
                                     ConnectionState.waiting
-                                ? CircularProgressIndicator()
-                                : CircleAvatar(
-                                    backgroundImage: NetworkImage(
-                                        snapshot.data!["image_url"]),
+                                ? const CircularProgressIndicator()
+                                : Container(
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                            blurRadius: 10,
+                                            color: Colors.white,
+                                            spreadRadius: 5)
+                                      ],
+                                    ),
+                                    child: CircleAvatar(
+                                      radius: 20,
+                                      backgroundImage: NetworkImage(
+                                          snapshot.data!["image_url"]),
+                                    ),
                                   );
                           },
                         ),

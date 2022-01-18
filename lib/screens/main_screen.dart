@@ -37,8 +37,9 @@ class _MainScreenState extends State<MainScreen> {
         .collection('messages')
         .doc(id)
         .collection(FirebaseAuth.instance.currentUser!.uid);
-    QuerySnapshot querySnapshot =
-        await _collectionRef.get(const GetOptions(source: Source.server));
+    QuerySnapshot querySnapshot = await _collectionRef
+        .orderBy("createdAt")
+        .get(const GetOptions(source: Source.server));
 
     if (querySnapshot.docs.last.exists) {
       return querySnapshot.docs.last;
@@ -112,7 +113,7 @@ class _MainScreenState extends State<MainScreen> {
       body: Container(
         color: Colors.black45,
         child: Container(
-          margin: EdgeInsets.only(top: 30),
+          margin: const EdgeInsets.only(top: 30),
           decoration: BoxDecoration(
             color: Colors.blue[100],
             borderRadius: const BorderRadius.only(
@@ -140,7 +141,7 @@ class _MainScreenState extends State<MainScreen> {
                             AsyncSnapshot<dynamic> snapshot) {
                           return snapshot.connectionState ==
                                   ConnectionState.waiting
-                              ? CircularProgressIndicator()
+                              ? const CircularProgressIndicator()
                               : ListView.builder(
                                   shrinkWrap: true,
                                   itemBuilder: (ctx, index) => Container(
@@ -153,7 +154,7 @@ class _MainScreenState extends State<MainScreen> {
                                                 AsyncSnapshot<dynamic> snaps) {
                                               return snaps.connectionState ==
                                                       ConnectionState.waiting
-                                                  ? CircularProgressIndicator()
+                                                  ? const CircularProgressIndicator()
                                                   : Container(
                                                       alignment:
                                                           Alignment.center,
@@ -192,11 +193,11 @@ class _MainScreenState extends State<MainScreen> {
                                                                           .docs[index]["image_url"]),
                                                                 ),
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                 width: 0,
                                                               ),
                                                               Container(
-                                                                width: 140,
+                                                                width: 180,
                                                                 child: Padding(
                                                                   padding: const EdgeInsets
                                                                           .only(
@@ -210,14 +211,27 @@ class _MainScreenState extends State<MainScreen> {
                                                                         CrossAxisAlignment
                                                                             .start,
                                                                     children: [
-                                                                      Text(snapshot
-                                                                          .data
-                                                                          .docs[index]["username"]),
-                                                                      Text(snaps.data ==
-                                                                              null
-                                                                          ? "No messages"
-                                                                          : (snaps
-                                                                              .data["text"]))
+                                                                      Text(
+                                                                        snapshot
+                                                                            .data
+                                                                            .docs[index]["username"],
+                                                                        style: const TextStyle(
+                                                                            fontSize:
+                                                                                12,
+                                                                            color:
+                                                                                Colors.white),
+                                                                      ),
+                                                                      Text(
+                                                                        snaps.data ==
+                                                                                null
+                                                                            ? "No messages"
+                                                                            : (snaps.data["text"]),
+                                                                        style: const TextStyle(
+                                                                            fontSize:
+                                                                                18,
+                                                                            color:
+                                                                                Colors.white),
+                                                                      )
                                                                     ],
                                                                   ),
                                                                 ),
@@ -228,8 +242,12 @@ class _MainScreenState extends State<MainScreen> {
                                                               Container(
                                                                 width: 60,
                                                                 child: Text(
-                                                                    getFormattedDate(
-                                                                        snaps)),
+                                                                  getFormattedDate(
+                                                                      snaps),
+                                                                  style: const TextStyle(
+                                                                      color: Colors
+                                                                          .white),
+                                                                ),
                                                               ),
                                                             ],
                                                           ),
@@ -250,7 +268,7 @@ class _MainScreenState extends State<MainScreen> {
                                                             ),
                                                           ],
                                                           color:
-                                                              Colors.blue[200],
+                                                              Colors.blue[700],
                                                           borderRadius:
                                                               BorderRadius
                                                                   .circular(
