@@ -20,6 +20,14 @@ class _ChatScreenState extends State<ChatScreen> {
   final _messController = TextEditingController();
   String _enteredMessage = "";
 
+  Future<DocumentSnapshot> getImage() async {
+    final userData = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+    return userData;
+  }
+
   void _sendMessage() async {
     FocusScope.of(context).unfocus();
     final uId = FirebaseAuth.instance.currentUser!.uid;
@@ -27,8 +35,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
     final userData =
         await FirebaseFirestore.instance.collection("users").doc(uId).get();
-    final toUser =
-        await FirebaseFirestore.instance.collection("users").doc(idUsers).get();
 
     var timestamp = Timestamp.now();
 // sending message to one of possible collections
@@ -40,24 +46,22 @@ class _ChatScreenState extends State<ChatScreen> {
       "text": _enteredMessage,
       "createdAt": timestamp,
       "userId": uId,
-      "userIdTo": idUsers,
-      "usernameFrom": userData["username"],
-      "emailFrom": userData["email"],
+      "username": userData["username"],
     });
 
+    if (uId != idUsers) {
 // duplicite with swaped Uid and targedMess userid, hence they show their messages
-    FirebaseFirestore.instance
-        .collection("messages")
-        .doc(idUsers)
-        .collection(uId)
-        .add({
-      "text": _enteredMessage,
-      "createdAt": timestamp,
-      "userId": uId,
-      "userIdTo": idUsers,
-      "usernameFrom": userData["username"],
-      "emailFrom": userData["email"]
-    });
+      FirebaseFirestore.instance
+          .collection("messages")
+          .doc(idUsers)
+          .collection(uId)
+          .add({
+        "text": _enteredMessage,
+        "createdAt": timestamp,
+        "userId": uId,
+        "username": userData["username"],
+      });
+    }
 
     _messController.clear();
   }
@@ -68,8 +72,17 @@ class _ChatScreenState extends State<ChatScreen> {
     //print(uIdToMess);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text("Message screen "),
+        backgroundColor: Colors.black87,
+        title: FutureBuilder(
+          future: getImage(),
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            return snapshot.connectionState == ConnectionState.done
+                ? Text("Chat: " + snapshot.data["username"])
+                : const Center(
+                    child: CircularProgressIndicator(),
+                  );
+          },
+        ),
       ),
       body: Container(
         child: Column(
@@ -97,13 +110,11 @@ class _ChatScreenState extends State<ChatScreen> {
                             itemCount: snapshot.data.docs.length,
                             itemBuilder: (BuildContext context, int index) {
                               return messBuble(
-                                username: snapshot.data.docs[index]
-                                    ["usernameFrom"],
+                                username: snapshot.data.docs[index]["username"],
                                 text: snapshot.data.docs[index]["text"],
-                                email: snapshot.data.docs[index]["emailFrom"],
-                                key: ValueKey(index),
-                                isMe: Random().nextDouble() <= 0.7,
-                                // isMe: true
+                                isMe: FirebaseAuth.instance.currentUser!.uid ==
+                                    snapshot.data.docs[index]["userId"],
+                                userId: snapshot.data.docs[index]["userId"],
                               );
                             },
                           );

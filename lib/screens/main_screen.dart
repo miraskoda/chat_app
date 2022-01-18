@@ -3,6 +3,7 @@ import 'package:chat_app/screens/settings_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -29,13 +30,33 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  Future<Object> getLastMess(String id) async {
+    //.doc(idUsers)
+    //  .collection(uId)
+    CollectionReference _collectionRef = FirebaseFirestore.instance
+        .collection('messages')
+        .doc(id)
+        .collection(FirebaseAuth.instance.currentUser!.uid);
+    QuerySnapshot querySnapshot =
+        await _collectionRef.get(const GetOptions(source: Source.server));
+
+    if (querySnapshot.docs.last.exists) {
+      return querySnapshot.docs.last;
+    } else {
+      return false;
+    }
+    // return querySnapshot.docs.firstWhere((element) {
+    //   return element.id == id;
+    // });
+  }
+
   @override
   Widget build(BuildContext context) {
     //getImageUrl();
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.black87,
         title: FutureBuilder(
             future: getImageUrl(),
             builder: (BuildContext ctx, AsyncSnapshot<dynamic> snap) {
@@ -95,50 +116,80 @@ class _MainScreenState extends State<MainScreen> {
                               shrinkWrap: true,
                               itemBuilder: (ctx, index) => Column(
                                 children: [
-                                  Container(
-                                    alignment: Alignment.center,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(10.0),
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          //print(snapshot.data.docs);
-                                          Navigator.of(context).pushNamed(
-                                            ChatScreen.routeName,
-                                            arguments: snapshot.data.docs[index]
-                                                ["uId"],
-                                          );
-                                        },
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            CircleAvatar(
-                                              backgroundImage: NetworkImage(
-                                                  snapshot.data.docs[index]
-                                                      ["image_url"]),
+                                  FutureBuilder(
+                                      future: getLastMess(
+                                          snapshot.data.docs[index]["uId"]),
+                                      builder: (BuildContext ctxs,
+                                          AsyncSnapshot<dynamic> snaps) {
+                                        return Container(
+                                          alignment: Alignment.center,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(5.0),
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                //print(snapshot.data.docs);
+                                                Navigator.of(context).pushNamed(
+                                                  ChatScreen.routeName,
+                                                  arguments: snapshot
+                                                      .data.docs[index]["uId"],
+                                                );
+                                              },
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  CircleAvatar(
+                                                    backgroundImage:
+                                                        NetworkImage(snapshot
+                                                                .data
+                                                                .docs[index]
+                                                            ["image_url"]),
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 10.0),
+                                                    child: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        Text(snapshot.data
+                                                                .docs[index]
+                                                            ["username"]),
+                                                        Text(snaps.data == null
+                                                            ? "No messages"
+                                                            : (snaps
+                                                                .data["text"]))
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 90,
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 10.0),
+                                                    child: Text(snaps.data ==
+                                                            null
+                                                        ? ""
+                                                        : DateFormat.yMMMd()
+                                                            .format((snaps.data[
+                                                                        "createdAt"]
+                                                                    .toDate()
+                                                                as DateTime))),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 10.0),
-                                              child: Text(snapshot.data
-                                                  .docs[index]["username"]),
-                                            ),
-                                            const SizedBox(
-                                              width: 90,
-                                            ),
-                                            const Padding(
-                                              padding:
-                                                  EdgeInsets.only(left: 10.0),
-                                              child: Text("now"),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    decoration: BoxDecoration(
-                                        color: Colors.grey,
-                                        borderRadius: BorderRadius.circular(5)),
-                                  ),
+                                          ),
+                                          decoration: BoxDecoration(
+                                              color: Colors.blue[200],
+                                              borderRadius:
+                                                  BorderRadius.circular(20)),
+                                        );
+                                      }),
                                   const SizedBox(
                                     height: 20,
                                   )
