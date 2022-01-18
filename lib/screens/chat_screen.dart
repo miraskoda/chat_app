@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:chat_app/widgets/mess_bubble.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -39,9 +40,9 @@ class _ChatScreenState extends State<ChatScreen> {
       "text": _enteredMessage,
       "createdAt": timestamp,
       "userId": uId,
-      "messageTo": idUsers,
-      "username": userData["username"],
-      "userImage": userData["image_url"],
+      "userIdTo": idUsers,
+      "usernameFrom": userData["username"],
+      "emailFrom": userData["email"],
     });
 
 // duplicite with swaped Uid and targedMess userid, hence they show their messages
@@ -53,23 +54,17 @@ class _ChatScreenState extends State<ChatScreen> {
       "text": _enteredMessage,
       "createdAt": timestamp,
       "userId": uId,
-      "messageTo": idUsers,
-      "username": userData["username"],
-      "userImage": userData["image_url"],
+      "userIdTo": idUsers,
+      "usernameFrom": userData["username"],
+      "emailFrom": userData["email"]
     });
 
     _messController.clear();
   }
 
-  Future <bool> isMe() async {
-FirebaseAuth.instance.currentUser!.uid == 
-    return;
-  }
-
   @override
   Widget build(BuildContext context) {
     idUsers = ModalRoute.of(context)!.settings.arguments as String;
-    getMessages();
     //print(uIdToMess);
     return Scaffold(
       appBar: AppBar(
@@ -102,12 +97,13 @@ FirebaseAuth.instance.currentUser!.uid ==
                             itemCount: snapshot.data.docs.length,
                             itemBuilder: (BuildContext context, int index) {
                               return messBuble(
-                                idUsers: idUsers,
-                                snapshot: snapshot,
-                                index: index,
+                                username: snapshot.data.docs[index]
+                                    ["usernameFrom"],
+                                text: snapshot.data.docs[index]["text"],
+                                email: snapshot.data.docs[index]["emailFrom"],
                                 key: ValueKey(index),
-                               // isMe: Random().nextDouble() <= 0.7,
-                               isMe: FirebaseAuth.instance.currentUser!.uid == ,
+                                isMe: Random().nextDouble() <= 0.7,
+                                // isMe: true
                               );
                             },
                           );
@@ -146,61 +142,6 @@ FirebaseAuth.instance.currentUser!.uid ==
             )
           ],
         ),
-      ),
-    );
-  }
-}
-
-class messBuble extends StatelessWidget {
-  const messBuble({
-    Key? key,
-    required this.idUsers,
-    required this.snapshot,
-    required this.index,
-    required this.isMe,
-  }) : super(key: key);
-
-  final String idUsers;
-  final snapshot;
-  final index;
-  final isMe;
-
-  @override
-  Widget build(BuildContext context) {
-    print(isMe);
-
-    return Container(
-      child: Column(
-        crossAxisAlignment:
-            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 50,
-            width: 200,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                  begin: Alignment.centerRight,
-                  end: Alignment.centerLeft,
-                  colors: [
-                    Colors.blue,
-                    Colors.green,
-                  ]),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              children: [
-                Text(snapshot.data.docs[index]["username"]),
-                SizedBox(
-                  width: 20,
-                ),
-                Text(snapshot.data.docs[index]["text"]),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 10,
-          )
-        ],
       ),
     );
   }
