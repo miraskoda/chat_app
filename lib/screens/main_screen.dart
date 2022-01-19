@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -18,16 +19,12 @@ class _MainScreenState extends State<MainScreen> {
   String imageUrl = "";
   String username = "";
 
-  Future<QueryDocumentSnapshot> getImageUrl() async {
+  Future<DocumentSnapshot> getImageUrl() async {
     final id = FirebaseAuth.instance.currentUser!.uid;
-    CollectionReference _collectionRef =
-        FirebaseFirestore.instance.collection('users');
-    QuerySnapshot querySnapshot =
-        await _collectionRef.get(const GetOptions(source: Source.server));
-
-    return querySnapshot.docs.firstWhere((element) {
-      return element.id == id;
-    });
+    return await FirebaseFirestore.instance
+        .collection('users')
+        .doc(id)
+        .get(const GetOptions(source: Source.server));
   }
 
   Future<Object> getLastMess(String id) async {
@@ -60,7 +57,7 @@ class _MainScreenState extends State<MainScreen> {
       return DateFormat.Hm().format(snaps.data["createdAt"].toDate());
     }
     ret = notValid
-        ? "No data"
+        ? AppLocalizations.of(context)!.noData
         : DateFormat.Md().format(snaps.data["createdAt"].toDate());
     return ret;
   }
@@ -77,7 +74,7 @@ class _MainScreenState extends State<MainScreen> {
             future: getImageUrl(),
             builder: (BuildContext ctx, AsyncSnapshot<dynamic> snap) {
               //snap.data["username"];
-              return snap.connectionState != ConnectionState.done
+              return snap.connectionState == ConnectionState.waiting
                   ? const CircularProgressIndicator()
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -88,7 +85,7 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         Text(snap.data!["username"]),
                         const SizedBox(
-                          width: 90,
+                          width: 60,
                         ),
                       ],
                     );
@@ -103,9 +100,9 @@ class _MainScreenState extends State<MainScreen> {
             onPressed: () {
               logout();
             },
-            child: const Text(
-              "Logout",
-              style: TextStyle(color: Colors.white),
+            child: Text(
+              AppLocalizations.of(context)!.logout,
+              style: const TextStyle(color: Colors.white),
             ),
           ),
         ],
@@ -127,10 +124,11 @@ class _MainScreenState extends State<MainScreen> {
             child: Container(
               child: Column(
                 children: [
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.all(10.0),
                     child: Text(
-                      "Open new chat:",
+                      AppLocalizations.of(context)!.welcomeText,
+                      // "Open new chat:",
                       style: TextStyle(fontSize: 24),
                     ),
                   ),
@@ -224,7 +222,7 @@ class _MainScreenState extends State<MainScreen> {
                                                                       Text(
                                                                         snaps.data ==
                                                                                 null
-                                                                            ? "No messages"
+                                                                            ? AppLocalizations.of(context)!.noMess
                                                                             : (snaps.data["text"]),
                                                                         style: const TextStyle(
                                                                             fontSize:

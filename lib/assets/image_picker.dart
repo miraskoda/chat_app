@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart' as pick;
 import 'dart:io';
 import 'package:path/path.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ImagePicker extends StatefulWidget {
   final Function imagePicker;
@@ -45,7 +46,7 @@ class _ImagePickerState extends State<ImagePicker> {
         FlatButton.icon(
             onPressed: _pickImage,
             icon: Icon(Icons.camera),
-            label: Text("Take a photo")),
+            label: Text(AppLocalizations.of(context)!.takePhoto)),
       ],
     );
   }

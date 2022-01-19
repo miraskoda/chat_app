@@ -1,4 +1,10 @@
+import 'package:chat_app/assets/theme_state.dart';
+import 'package:chat_app/main.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -8,16 +14,38 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
-  bool _dark = false;
+String locVal = "";
+bool _dark = false;
 
+Future<void> setDarkMode(BuildContext context) async {
+  final uId = FirebaseAuth.instance.currentUser!.uid;
+
+  try {
+    FirebaseFirestore.instance.collection("users").doc(uId).update({
+      "dark": _dark,
+    });
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('An error occured')),
+    );
+
+    throw (e);
+  }
+
+  Provider.of<ThemeState>(context, listen: false).theme =
+      _dark ? ThemeType.DARK : ThemeType.LIGHT;
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
+    locVal = MyApp.of(context)!.getLocale();
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.black45,
-        title: const Text("Settings screen"),
+        title: Text(AppLocalizations.of(context)!.settingsText),
       ),
       body: Container(
         color: Colors.black45,
@@ -38,13 +66,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Center(
-                        child: Text("Dark mode activated"),
+                        child: Text(AppLocalizations.of(context)!.darkMode),
                       ),
                       Switch(
                           value: _dark,
                           onChanged: (value) {
                             setState(() {
                               _dark = value;
+                              setDarkMode(context);
                             });
                           })
                     ],
@@ -55,26 +84,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Center(
-                        child: Text("App langugage  "),
+                      Center(
+                        child:
+                            Text(AppLocalizations.of(context)!.appLang + "   "),
                       ),
                       DropdownButton(
                         items: const [
                           DropdownMenuItem(
                             child: Text("English"),
-                            value: 1,
+                            value: "en",
                           ),
                           DropdownMenuItem(
-                            child: Text("Czech"),
-                            value: 2,
+                            child: Text("Čeština"),
+                            value: "cs",
                           ),
                           DropdownMenuItem(
                             child: Text("Polska"),
-                            value: 3,
+                            value: "pl",
                           )
                         ],
-                        onChanged: (value) {},
-                        value: 1,
+                        onChanged: (value) {
+                          switch (value) {
+                            case "en":
+                              MyApp.of(context)!.setLocale(
+                                  const Locale.fromSubtags(languageCode: 'en'));
+                              locVal = "en";
+                              break;
+                            case "cs":
+                              MyApp.of(context)!.setLocale(
+                                  const Locale.fromSubtags(languageCode: 'cs'));
+                              locVal = "cs";
+
+                              break;
+                            case "pl":
+                              MyApp.of(context)!.setLocale(
+                                  const Locale.fromSubtags(languageCode: 'pl'));
+                              locVal = "pl";
+
+                              break;
+                          }
+                          setState(() {});
+                        },
+                        value: locVal,
                       ),
                     ],
                   ),
@@ -83,7 +134,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [const Text("Change profile picture")],
+                    children: [
+                      Text(AppLocalizations.of(context)!.changeProPict)
+                    ],
                   )
                 ],
               ),

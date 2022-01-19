@@ -1,0 +1,20 @@
+{
+    "welcomeText": "Otwórz nowy czat",
+    "logout": "wyloguj",
+    "noMess": "Brak",
+    "noData": "Brak",
+    "settingsText": "Ustawienia",
+    "darkMode": "włączony tryb ciemny",
+    "appLang": "język aplikacji",
+    "changeProPict": "Zmień zdjęcie profilowe",
+    "sendButton": "wysłać",
+    "writeMess": "Napisać wiadomość",
+    "loginText": "Zaloguj sie",
+    "loginBackText": "Powrót",
+    "emailText": "Email",
+    "usernameText": "Nazwa Użytkownika",
+    "passText": "Hasło",
+    "submitText": "Zaloguj",
+    "registerText": "rejestracja",
+    "takePhoto": "robić zdjęcie"
+}

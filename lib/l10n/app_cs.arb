@@ -1,0 +1,20 @@
+{
+    "welcomeText": "Otevřít chat",
+    "logout": "odhlásit se",
+    "noMess": "Žádná zpráva",
+    "noData": "Prázdno",
+    "settingsText": "Nastavení",
+    "darkMode": "Dark mode aktivovaný",
+    "appLang": "Jazyk aplikace",
+    "changeProPict": "Změnit profilový obrázek",
+    "sendButton": "Odeslat",
+    "writeMess": "Napsat zprávu",
+    "loginText": "Přihlášení",
+    "loginBackText": "Zpět",
+    "usernameText": "Uživatelské jméno",
+    "emailText": "Email",
+    "passText": "Heslo",
+    "submitText": "Přihlásit",
+    "registerText": "Registrovat",
+    "takePhoto": "Vyfotit fotografii"
+}

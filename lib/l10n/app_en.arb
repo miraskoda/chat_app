@@ -1,0 +1,20 @@
+{
+    "welcomeText": "Open new chat",
+    "logout": "logout",
+    "noMess": "No messages",
+    "noData": "No data",
+    "settingsText": "Settings screen",
+    "darkMode": "Dark mode activated",
+    "appLang": "App language",
+    "changeProPict": "Change profile picture",
+    "sendButton": "Send",
+    "writeMess": "Write a message",
+    "loginText": "Login screen",
+    "loginBackText": "Back",
+    "usernameText": "Username",
+    "emailText": "Email",
+    "passText": "Password",
+    "submitText": "Submit",
+    "registerText": "Register",
+    "takePhoto": "Take a photo"
+}

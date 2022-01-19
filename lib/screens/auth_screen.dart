@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AuthScreen extends StatefulWidget {
   @override
@@ -78,7 +79,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
         "username": _username,
         "email": _email,
         "image_url": url,
-        "uId": _authResult.user!.uid
+        "uId": _authResult.user!.uid,
+        "dark": false,
       });
     } catch (error) {
       throw error;
@@ -111,10 +113,10 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                 decoration: BoxDecoration(
                     // color: Colors.white,
                     //border: Border.all(width: 1),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.8),
+                        color: Colors.grey.withOpacity(0.3),
                         spreadRadius: 15,
                         blurRadius: 7,
                         offset:
@@ -126,10 +128,10 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text(
-                        "Login screen",
+                        AppLocalizations.of(context)!.loginText,
                         style: TextStyle(
                             fontSize: 28, fontWeight: FontWeight.bold),
                       ),
@@ -154,7 +156,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                   },
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(),
-                                    hintText: 'Username',
+                                    hintText: AppLocalizations.of(context)!
+                                        .usernameText,
                                   ),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -179,9 +182,10 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                               onSaved: (newValue) {
                                 _email = newValue!.trim();
                               },
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 border: OutlineInputBorder(),
-                                hintText: 'Email',
+                                hintText:
+                                    AppLocalizations.of(context)!.emailText,
                               ),
                               keyboardType: TextInputType.emailAddress,
                             ),
@@ -201,7 +205,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                               },
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(),
-                                hintText: 'Password',
+                                hintText:
+                                    AppLocalizations.of(context)!.passText,
                               ),
                               obscureText: true,
                             ),
@@ -217,26 +222,36 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                   ),
                                   onPressed: () {
                                     FocusScope.of(context).unfocus();
-
                                     _formKey.currentState!.save();
-                                    if (_formKey.currentState!.validate() &&
-                                        _imageFile.path.isNotEmpty) {
-                                      print(_imageFile.path.isNotEmpty);
+
+                                    if (!_formKey.currentState!.validate()) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                'Please provide a valid text data')),
+                                      );
+                                    }
+                                    if (!_imageFile.path.isNotEmpty &&
+                                        isRegistering) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text('Provide an image')),
+                                      );
+                                    } else {
+                                      print(_email);
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         const SnackBar(
                                             content: Text('Logging in')),
                                       );
+
                                       submitForm();
-                                    } else {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                            content: Text('An error occured')),
-                                      );
                                     }
                                   },
-                                  child: const Text("    Submit    "),
+                                  child: Text(
+                                      AppLocalizations.of(context)!.loginText),
                                 ),
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
@@ -255,12 +270,14 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                     });
                                   },
                                   child: isRegistering
-                                      ? const Text(
-                                          "Back to login",
+                                      ? Text(
+                                          AppLocalizations.of(context)!
+                                              .loginBackText,
                                           style: TextStyle(fontSize: 12),
                                         )
-                                      : const Text(
-                                          "Register",
+                                      : Text(
+                                          AppLocalizations.of(context)!
+                                              .registerText,
                                           style: TextStyle(fontSize: 12),
                                         ),
                                 )

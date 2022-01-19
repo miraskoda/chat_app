@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({Key? key}) : super(key: key);
@@ -156,11 +157,11 @@ class _ChatScreenState extends State<ChatScreen> {
                             color: Colors.white70,
                             fontSize: 18,
                           ),
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             isDense: true, // Added this
                             contentPadding: EdgeInsets.all(8), // Added this
                             border: InputBorder.none,
-                            hintText: "Send",
+                            hintText: AppLocalizations.of(context)!.writeMess,
                             hintStyle: TextStyle(color: Colors.white70),
                           ),
                           controller: _messController,
@@ -171,8 +172,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       // height: 40,
                       child: ElevatedButton(
                         onPressed: _sendMessage,
-                        child: const Text(
-                          "Send",
+                        child: Text(
+                          AppLocalizations.of(context)!.sendButton,
                           style: TextStyle(color: Colors.white),
                         ),
                         style: ButtonStyle(
