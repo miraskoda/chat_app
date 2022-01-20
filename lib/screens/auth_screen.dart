@@ -61,6 +61,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       } else {
         _authResult = await _auth.signInWithEmailAndPassword(
             email: _email, password: _password);
+        setState(() {});
+        return;
       }
 
       final ref = FirebaseStorage.instance
@@ -145,7 +147,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         key: _formKey,
                         child: Column(
                           children: [
-                            if (isRegistering) img.ImagePicker(_pickedImage),
+                            if (isRegistering)
+                              img.ImagePicker(_pickedImage, true),
                             if (isRegistering)
                               FadeTransition(
                                 opacity: _animation,
@@ -251,7 +254,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                     }
                                   },
                                   child: Text(
-                                      AppLocalizations.of(context)!.loginText),
+                                      AppLocalizations.of(context)!.submitText),
                                 ),
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(

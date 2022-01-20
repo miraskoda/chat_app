@@ -1,11 +1,13 @@
 import 'dart:math';
 
+import 'package:chat_app/assets/theme_state.dart';
 import 'package:chat_app/widgets/mess_bubble.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({Key? key}) : super(key: key);
@@ -94,7 +96,9 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Container(
           margin: EdgeInsets.only(top: 30),
           decoration: BoxDecoration(
-            color: Colors.blue[100],
+            color: Provider.of<ThemeState>(context).theme == ThemeType.DARK
+                ? Colors.grey
+                : Colors.blue[50],
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(30),
               topRight: Radius.circular(30),

@@ -1,3 +1,4 @@
+import 'package:chat_app/assets/theme_state.dart';
 import 'package:chat_app/screens/chat_screen.dart';
 import 'package:chat_app/screens/settings_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -21,10 +23,7 @@ class _MainScreenState extends State<MainScreen> {
 
   Future<DocumentSnapshot> getImageUrl() async {
     final id = FirebaseAuth.instance.currentUser!.uid;
-    return await FirebaseFirestore.instance
-        .collection('users')
-        .doc(id)
-        .get(const GetOptions(source: Source.server));
+    return await FirebaseFirestore.instance.collection('users').doc(id).get();
   }
 
   Future<Object> getLastMess(String id) async {
@@ -34,9 +33,8 @@ class _MainScreenState extends State<MainScreen> {
         .collection('messages')
         .doc(id)
         .collection(FirebaseAuth.instance.currentUser!.uid);
-    QuerySnapshot querySnapshot = await _collectionRef
-        .orderBy("createdAt")
-        .get(const GetOptions(source: Source.server));
+    QuerySnapshot querySnapshot =
+        await _collectionRef.orderBy("createdAt").get();
 
     if (querySnapshot.docs.last.exists) {
       return querySnapshot.docs.last;
@@ -71,25 +69,31 @@ class _MainScreenState extends State<MainScreen> {
         elevation: 0,
         backgroundColor: Colors.black45,
         title: FutureBuilder(
-            future: getImageUrl(),
-            builder: (BuildContext ctx, AsyncSnapshot<dynamic> snap) {
-              //snap.data["username"];
-              return snap.connectionState == ConnectionState.waiting
-                  ? const CircularProgressIndicator()
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        CircleAvatar(
-                          backgroundImage:
-                              NetworkImage(snap.data!["image_url"]),
-                        ),
-                        Text(snap.data!["username"]),
-                        const SizedBox(
-                          width: 60,
-                        ),
-                      ],
-                    );
-            }),
+          future: Future.delayed(Duration(seconds: 1)),
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            return FutureBuilder(
+                future: getImageUrl(),
+                builder: (BuildContext ctx, AsyncSnapshot<dynamic> snap) {
+                  //snap.data["username"];
+                  return snap.connectionState != ConnectionState.done ||
+                          !snap.hasData
+                      ? const CircularProgressIndicator()
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            CircleAvatar(
+                              backgroundImage:
+                                  NetworkImage(snap.data!["image_url"]),
+                            ),
+                            Text(snap.data!["username"]),
+                            const SizedBox(
+                              width: 60,
+                            ),
+                          ],
+                        );
+                });
+          },
+        ),
         actions: [
           IconButton(
               onPressed: () {
@@ -112,13 +116,14 @@ class _MainScreenState extends State<MainScreen> {
         child: Container(
           margin: const EdgeInsets.only(top: 30),
           decoration: BoxDecoration(
-            color: Colors.blue[100],
+            color: Provider.of<ThemeState>(context).theme == ThemeType.DARK
+                ? Colors.grey
+                : Colors.blue[50],
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(30),
               topRight: Radius.circular(30),
             ),
           ),
-          //color: Colors.black26,
           height: MediaQuery.of(context).size.height,
           child: SingleChildScrollView(
             child: Container(
@@ -258,15 +263,20 @@ class _MainScreenState extends State<MainScreen> {
                                                                   .white
                                                                   .withOpacity(
                                                                       0.8),
-                                                              spreadRadius: 3,
-                                                              blurRadius: 7,
+                                                              spreadRadius: 6,
+                                                              blurRadius: 3,
                                                               offset: const Offset(
                                                                   0,
                                                                   1), // changes position of shadow
                                                             ),
                                                           ],
-                                                          color:
-                                                              Colors.blue[700],
+                                                          color: Provider.of<ThemeState>(
+                                                                          context)
+                                                                      .theme ==
+                                                                  ThemeType.DARK
+                                                              ? Colors.black87
+                                                              : Colors
+                                                                  .indigo[900],
                                                           borderRadius:
                                                               BorderRadius
                                                                   .circular(
