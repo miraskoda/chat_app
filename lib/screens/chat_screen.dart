@@ -28,38 +28,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
-  Future<void> firebaseMess(String text) async {
-// Replace with server token from firebase console settings.
-    const String serverToken =
-        'AAAAZCOZA2E:APA91bH8YjyzQJ1N0oEuaYclgmDeAbAroSPXA9W92Xfcs5cHVIZKBhcDcXvLDIlsO3IOgDTgufsi93Lq2uwZYMql3215AEf8kjpflEeVfAHa8arYt5BqRAUfbix9wHhXnZQdGCkJk02O';
-    var url = Uri.parse('https://fcm.googleapis.com/fcm/send');
-
-    await http.post(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-        'Authorization': 'key=$serverToken',
-      },
-      body: jsonEncode(
-        <String, dynamic>{
-          'notification': <String, dynamic>{
-            'body': 'text',
-            'title': 'New Message!'
-          },
-          'priority': 'high',
-          'data': <String, dynamic>{
-            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
-            'id': '1',
-            'status': 'done'
-          },
-          'to': await messaging.getToken(),
-        },
-      ),
-    );
-
-    print(messaging.getToken().toString());
-  }
-
   Future<DocumentSnapshot> getImage() async {
     final userData = await FirebaseFirestore.instance
         .collection("users")
@@ -102,7 +70,6 @@ class _ChatScreenState extends State<ChatScreen> {
         "username": userData["username"],
       });
     }
-    firebaseMess(_enteredMessage);
     _messController.clear();
   }
 
