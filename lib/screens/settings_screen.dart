@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:chat_app/assets/theme_state.dart';
 import 'package:chat_app/main.dart';
 import 'package:chat_app/screens/chat_screen.dart';
+import 'package:chat_app/screens/main_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -56,7 +57,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: Colors.black45,
         leading: GestureDetector(
             onTap: () {
-              Navigator.of(context).pop();
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => MainScreen()));
             },
             child: Icon(Icons.arrow_back)),
         title: Text(AppLocalizations.of(context)!.settingsText),
@@ -149,7 +151,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Text(AppLocalizations.of(context)!.changeProPict)],
+                  children: [
+                    Text(AppLocalizations.of(context)!.changeProPict + ":")
+                  ],
+                ),
+                SizedBox(
+                  height: 20,
                 ),
                 pick.ImagePicker(_pickedImage, false),
               ]),

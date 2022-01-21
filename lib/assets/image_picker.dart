@@ -50,53 +50,50 @@ class _ImagePickerState extends State<ImagePicker> {
             .child(FirebaseAuth.instance.currentUser!.uid + ".jpg");
         await dwnlLing.putFile(pickedImageFile);
 
-        print(await dwnlLing.getDownloadURL());
-
         await FirebaseFirestore.instance
             .collection("users")
             .doc(FirebaseAuth.instance.currentUser!.uid)
             .update({"image_url": await dwnlLing.getDownloadURL()});
-
         //change reference in DB
-
       }
     } catch (e) {
       throw e;
     }
-
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    print(pickedImageFile.path);
-    print(widget.isOnLoginPage);
-    return Column(
-      children: [
-        widget.isOnLoginPage
-            ? CircleAvatar(
-                backgroundImage: pickedImageFile.path.isEmpty
-                    ? AssetImage('lib/images/user.png') as ImageProvider
-                    : FileImage(pickedImageFile),
-                radius: 50,
-              )
-            : FutureBuilder(
-                future: getImage(),
-                builder:
-                    (BuildContext context, AsyncSnapshot<Object?> snapshot) {
-                  return CircleAvatar(
-                    backgroundImage: pickedImageFile.path.isEmpty
-                        ? NetworkImage(snapshot.data as String) as ImageProvider
-                        : FileImage(pickedImageFile),
-                    radius: 50,
-                  );
-                },
-              ),
-        FlatButton.icon(
-            onPressed: _pickImage,
-            icon: Icon(Icons.camera),
-            label: Text(AppLocalizations.of(context)!.takePhoto)),
-      ],
+    return GestureDetector(
+      onTap: _pickImage,
+      child: widget.isOnLoginPage
+          ? CircleAvatar(
+              backgroundImage: pickedImageFile.path.isEmpty
+                  ? const AssetImage('lib/images/user.png') as ImageProvider
+                  : FileImage(pickedImageFile),
+              radius: 50,
+              child: Text(AppLocalizations.of(context)!.takePhoto),
+            )
+          : FutureBuilder(
+              future: getImage(),
+              builder: (BuildContext context, AsyncSnapshot<Object?> snapshot) {
+                return snapshot.connectionState == ConnectionState.done
+                    ? CircleAvatar(
+                        backgroundImage: pickedImageFile.path.isEmpty
+                            ? NetworkImage(snapshot.data as String)
+                                as ImageProvider
+                            : FileImage(pickedImageFile),
+                        radius: 70,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 70.0),
+                          child: Text(AppLocalizations.of(context)!.takePhoto),
+                        ),
+                      )
+                    : const Center(
+                        child: CircularProgressIndicator(),
+                      );
+              },
+            ),
     );
   }
 }

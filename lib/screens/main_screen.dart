@@ -1,3 +1,6 @@
+import 'dart:ffi';
+import 'dart:math';
+
 import 'package:chat_app/assets/theme_state.dart';
 import 'package:chat_app/screens/chat_screen.dart';
 import 'package:chat_app/screens/settings_screen.dart';
@@ -16,6 +19,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   void logout() async {
     await FirebaseAuth.instance.signOut();
+    setState(() {});
   }
 
   String imageUrl = "";
@@ -41,9 +45,6 @@ class _MainScreenState extends State<MainScreen> {
     } else {
       return false;
     }
-    // return querySnapshot.docs.firstWhere((element) {
-    //   return element.id == id;
-    // });
   }
 
   dynamic getFormattedDate(dynamic snaps) {
@@ -61,39 +62,41 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    setState(() {});
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
     //getImageUrl();
-
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         elevation: 0,
         backgroundColor: Colors.black45,
         title: FutureBuilder(
-          future: Future.delayed(Duration(seconds: 1)),
-          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-            return FutureBuilder(
-                future: getImageUrl(),
-                builder: (BuildContext ctx, AsyncSnapshot<dynamic> snap) {
-                  //snap.data["username"];
-                  return snap.connectionState != ConnectionState.done ||
-                          !snap.hasData
-                      ? const CircularProgressIndicator()
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            CircleAvatar(
-                              backgroundImage:
-                                  NetworkImage(snap.data!["image_url"]),
-                            ),
-                            Text(snap.data!["username"]),
-                            const SizedBox(
-                              width: 60,
-                            ),
-                          ],
-                        );
-                });
-          },
-        ),
+            future: getImageUrl(),
+            builder: (BuildContext ctx, AsyncSnapshot<dynamic> snap) {
+              //snap.data["username"];
+              return snap.connectionState != ConnectionState.done ||
+                      !snap.hasData
+                  ? const CircularProgressIndicator()
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        CircleAvatar(
+                          key: UniqueKey(),
+                          backgroundImage:
+                              NetworkImage(snap.data!["image_url"]),
+                        ),
+                        Text(snap.data!["username"]),
+                        const SizedBox(
+                          width: 60,
+                        ),
+                      ],
+                    );
+            }),
         actions: [
           IconButton(
               onPressed: () {
@@ -115,6 +118,7 @@ class _MainScreenState extends State<MainScreen> {
         color: Colors.black45,
         child: Container(
           margin: const EdgeInsets.only(top: 30),
+          width: double.infinity,
           decoration: BoxDecoration(
             color: Provider.of<ThemeState>(context).theme == ThemeType.DARK
                 ? Colors.grey

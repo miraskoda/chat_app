@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:chat_app/assets/splash_screen.dart';
 import 'package:chat_app/screens/auth_screen.dart';
 import 'package:chat_app/screens/chat_screen.dart';
@@ -12,6 +14,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'assets/theme_state.dart';
+import 'package:http/http.dart' as http;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,25 +37,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool _darkMode = false;
-
-  Future<void> firebaseMess() async {
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-
-    NotificationSettings settings = await messaging.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
-    );
-    messaging
-        .subscribeToTopic("chat")
-        .whenComplete(() => print("completed topic"));
-
-    //print('User granted permission: ${settings.authorizationStatus}');
-  }
 
   Future<void> getDarkMode(BuildContext context) async {
     final uId = FirebaseAuth.instance.currentUser!.uid;
@@ -82,11 +66,55 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  Future<void> firebaseMess(String text) async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    await messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+
+    const String serverToken =
+        'AAAAZCOZA2E:APA91bH8YjyzQJ1N0oEuaYclgmDeAbAroSPXA9W92Xfcs5cHVIZKBhcDcXvLDIlsO3IOgDTgufsi93Lq2uwZYMql3215AEf8kjpflEeVfAHa8arYt5BqRAUfbix9wHhXnZQdGCkJk02O';
+    var url = Uri.parse('https://fcm.googleapis.com/fcm/send');
+
+    await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': 'key=$serverToken',
+      },
+      body: jsonEncode(
+        <String, dynamic>{
+          'notification': <String, dynamic>{
+            'body': text,
+            'title': 'New Message!'
+          },
+          'priority': 'high',
+          'data': <String, dynamic>{
+            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+            'id': '1',
+            'status': 'done'
+          },
+          'to': await messaging.getToken(),
+        },
+      ),
+    );
+
+    print(messaging.getToken().toString());
+  }
+
   @override
   Widget build(BuildContext context) {
-    firebaseMess();
+    firebaseMess("textooos");
     getDarkMode(context);
     print("darkmodeee " + _darkMode.toString());
+    print(context.size!.height);
 
     return MaterialApp(
       title: 'ChatApp',

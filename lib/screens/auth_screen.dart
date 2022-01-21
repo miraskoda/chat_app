@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:chat_app/assets/image_picker.dart' as img;
@@ -6,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class AuthScreen extends StatefulWidget {
   @override
@@ -21,7 +23,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   File _imageFile = File("");
 
   final _auth = FirebaseAuth.instance;
-
+  String varMess = "";
   bool isRegistering = false;
 
   late AnimationController _controller;
@@ -52,46 +54,59 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     _controller.dispose();
   }
 
-  void submitForm() async {
-    UserCredential _authResult;
+  Future<void> submitForm(BuildContext context) async {
+    String msg = "";
     try {
+      UserCredential _authResult;
       if (isRegistering) {
         _authResult = await _auth.createUserWithEmailAndPassword(
             email: _email, password: _password);
+
+        final ref = FirebaseStorage.instance
+            .ref()
+            .child("user_images")
+            .child(_authResult.user!.uid + ".jpg");
+
+        await ref.putFile(_imageFile);
+
+        final url = await ref.getDownloadURL();
+
+        await FirebaseFirestore.instance
+            .collection("users")
+            .doc(_authResult.user!.uid)
+            .set({
+          "username": _username,
+          "email": _email,
+          "image_url": url,
+          "uId": _authResult.user!.uid,
+          "dark": false,
+        });
       } else {
         _authResult = await _auth.signInWithEmailAndPassword(
             email: _email, password: _password);
-        setState(() {});
-        return;
       }
-
-      final ref = FirebaseStorage.instance
-          .ref()
-          .child("user_images")
-          .child(_authResult.user!.uid + ".jpg");
-
-      await ref.putFile(_imageFile);
-
-      final url = await ref.getDownloadURL();
-
-      await FirebaseFirestore.instance
-          .collection("users")
-          .doc(_authResult.user!.uid)
-          .set({
-        "username": _username,
-        "email": _email,
-        "image_url": url,
-        "uId": _authResult.user!.uid,
-        "dark": false,
-      });
+    } on FirebaseAuthException catch (e) {
+      msg = e.message.toString();
+      Fluttertoast.showToast(
+        msg: msg,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+      );
     } catch (error) {
+      msg = error.toString();
+      Fluttertoast.showToast(
+        msg: msg,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+      );
       throw error;
     }
+
     setState(() {});
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext ctx) {
     void registerNew() {
       isRegistering = !isRegistering;
       setState(() {});
@@ -223,7 +238,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                   style: ElevatedButton.styleFrom(
                                     primary: Colors.black, // background
                                   ),
-                                  onPressed: () {
+                                  onPressed: () async {
                                     FocusScope.of(context).unfocus();
                                     _formKey.currentState!.save();
 
@@ -243,14 +258,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                             content: Text('Provide an image')),
                                       );
                                     } else {
-                                      print(_email);
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                            content: Text('Logging in')),
-                                      );
-
-                                      submitForm();
+                                      submitForm(context);
                                     }
                                   },
                                   child: Text(
